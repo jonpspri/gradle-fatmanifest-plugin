@@ -1,0 +1,91 @@
+= Gradle Fat Manifest Plugin
+
+Gradle plugin for working with the
+https://docs.docker.com/registry/spec/api/[Docker Registry],
+targetted specifically toward creating 
+https://docs.docker.com/registry/spec/manifest-v2-2/[multi-archtecture image manifests].
+
+// TODO - add some useful links; compile a TODO file.
+WARNING: The current implementation is incomplete -- the plugin so far supports
+retrieving simple manifests and metadata from the registry and creating and
+uploading a multi-architecture manifest.  The target registry MUST support the
+Docker V2 API.  The source images, source manifests, and target manifest MUST
+all be in the same library on that server.
+
+== Usage
+
+To use this plugin, include it in your build script.
+
+[source,groovy]
+----
+buildscript {
+    repositories {
+        maven {
+            url 'https://dl.bintray.com/jonpspri/gradle-plugins' 
+        }
+    }
+
+    dependencies {
+        classpath 'com.xanophis:gradle-fatmanifest-plugin:X.Y.Z'
+    }
+}
+----
+
+And then apply the plugin to projects where you want to use it.
+[source,groovy]
+----
+apply plugin: 'com.xanophis.fatmanifest'
+----
+
+You may need to import task classes:
+[source,groovy]
+----
+import com.xanophis.gradle.fatmanifest.tasks.*
+----
+
+== Configuring the registry
+
+The plugin depends on the configuration of a target registry:
+
+[source,groovy]
+----
+registry {
+    name = gradle.ext.registryCredentials.name
+    url = gradle.ext.registryCredentials.url
+    username = gradle.ext.registryCredentials.username
+    password = gradle.ext.registryCredentials.password
+}
+----
+
+The registry `name` and `url` will default to the docker registry if not
+provided, but the `username` and `password` are manditory.  Users are advised
+_not_ to hardcode username and password into the build file, but rather to 
+source them from some file that is _not_ included in source code management.
+
+NOTE: Registry `name` is an FQDN, _e.g._ `registry.docker.io`.  The `url`,
+on the other hand, is used as the root of REST calls and so will usually be
+`"https:\\${name}\v2\"`.  Defaulting is _not_ yet build into the plugin. 
+
+== Quick Example
+
+Get two _already existing_ images with two different architectures and create a build for them.
+
+[source,groovy]
+----
+def archs = ['amd64','s390x']
+
+def getManifestTasks = archs.collect() { arch ->
+    project.task(name: "getManifest-#{arch}", type: GetManifest) {
+        os = 'linux'
+        architecture = project.name
+        imageName = "${library}/${dockerImageName}" 
+        tag = "latest-${arch}"
+    }
+}
+
+task putFatManifest(type: PutFatManifest, dependsOn: tasks) {
+    metadataFiles = getManifestTasks*.getMetadataFile()
+    imageName = "${library}/${dockerImageName}" 
+    tag = "latest"    
+}
+----
