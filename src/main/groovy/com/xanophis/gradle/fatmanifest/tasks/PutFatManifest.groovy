@@ -1,3 +1,22 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one
+ *  or more contributor license agreements.  See the NOTICE file
+ *  distributed with this work for additional information
+ *  regarding copyright ownership.  The ASF licenses this file
+ *  to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
 package com.xanophis.gradle.fatmanifest.tasks
 
 import groovy.json.*
@@ -6,34 +25,39 @@ import groovyx.net.http.*
 import org.gradle.api.*
 import org.gradle.api.tasks.*
 
+/**
+ * Create and PUT to the docker repository a multi-architecture manifest 
+ * (a.k.a. a fat manifest) for the provided simple manifests.
+ */
 class PutFatManifest extends AbstractHttpBuilderTask {
 
-    static String FAT_MANIFEST_MEDIA_TYPE = 'application/vnd.docker.distribution.manifest.list.v2+json'
-
     /**
-     *  Image name, including and prefixes, suffixes, etc.  A Closure,
-     *  or an object that resolves to a String.
+     *  Target image name, including and prefixes, suffixes, etc.  Usally is in the
+     *  form {@code "${library}/${image}"}
      */
     @Input
     String imageName
 
+    /**
+     *  Target docker tag.  Usually something like {@code 'latest'}.
+     */
     @Input
     String tag
     
     /**
-     *   Per gradle docs, this is any thing processable by Project.files -- which is quite a lot
+     *   Collection of objects to be resolved by {@code Project.files(Object[])}.
+     *   The resulting collection of files is presumed to be a collection of
+     *   metadata files produced by {@link GetManifest} (or in the same 
+     *   [undocumented] format) which will be used to create the multi-architecture
+     *   manifest to be uploaded.
      */
     @InputFiles
     def metadataFiles
 
     public static final String FAT_MANIFEST_MEDIA_TYPE = 'application/vnd.docker.distribution.manifest.list.v2+json'
 
-    PutFatManifest() {
-        super()
-    }
-
     @TaskAction
-    def putMultiArchManifest() {
+    void putMultiArchManifest() {
 
         //  TODO - Eventually, there need to be provisions to move blobs and
         //         manifests to the target library.  For now, we're going to
@@ -64,10 +88,10 @@ class PutFatManifest extends AbstractHttpBuilderTask {
                 ]
             }
         ]
-        println JsonOutput.prettyPrint(JsonOutput.toJson(fatManifest))
+        logger.debug JsonOutput.prettyPrint(JsonOutput.toJson(fatManifest))
 
         def response = put("${imageName}/manifests/${tag}", fatManifest)
-        println "HttpResponse from put received..."
+        logger.debug "HttpResponse from put received..."
         response.getAllHeaders().each() { println it }
     }
 }
