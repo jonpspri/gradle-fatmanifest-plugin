@@ -8,7 +8,7 @@ buildscript {
     }
 }
 
-group = 'com.bmuschko'
+group = 'com.xanophis'
 
 apply plugin: 'groovy'
 apply plugin: 'org.ajoberstar.release-opinion'
