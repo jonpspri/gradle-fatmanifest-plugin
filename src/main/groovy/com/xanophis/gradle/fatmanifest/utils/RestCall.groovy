@@ -17,8 +17,9 @@
  *  under the License.
  */
 
-package com.xanophis.gradle.fatmanifest.tasks
+package com.xanophis.gradle.fatmanifest.utils
 
+import com.xanophis.gradle.fatmanifest.FatManifestPlugin
 import com.xanophis.gradle.fatmanifest.manifest.ImageManifest
 
 import java.lang.reflect.Constructor
@@ -27,19 +28,16 @@ import groovy.json.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 
-abstract class AbstractHttpBuilderTask extends DefaultTask {
-
-    // TODO - Much of this should be refactored into a DockerRepositoryFacade
-    //        that is injected back into the various tasks
-
-    FileCollection classpath
+trait RestCall {
 
     private def withRestClient(Closure closure) {
+        FileCollection classpath =
+            project.configurations[FatManifestPlugin.FAT_MANIFEST_CONFIGURATION_NAME]
         ClassLoader originalClassLoader = getClass().classLoader
-        ClassLoader newClassLoader =
-            new URLClassLoader(
+        ClassLoader newClassLoader = new URLClassLoader(
                 classpath.collect(){it.toURI().toURL()} as URL[],
-                originalClassLoader)
+                originalClassLoader
+            )
 
         try {
             Thread.currentThread().contextClassLoader = newClassLoader
@@ -50,7 +48,7 @@ abstract class AbstractHttpBuilderTask extends DefaultTask {
 
             //  Configure parsers for potentially received content types
             Closure schemaParser = { new ImageManifest(it) }
-            ImageManifest.GET_CONTENT_TYPES.each() { contentType ->
+            ImageManifest.GET_CONTENT_TYPES.each { contentType ->
                 restClient.parser[contentType] = schemaParser
             }
 
@@ -61,7 +59,7 @@ abstract class AbstractHttpBuilderTask extends DefaultTask {
             ImageManifest.PUT_CONTENT_TYPES.each() { contentType ->
                 restClient.encoder[contentType] = jsonEncoder
             }
-            restClient.encoder[PutFatManifest.FAT_MANIFEST_MEDIA_TYPE] = jsonEncoder
+            restClient.encoder[ImageManifest.FAT_MANIFEST_MEDIA_TYPE] = jsonEncoder
 
             closure.call (restClient)
         } finally {
@@ -101,7 +99,7 @@ abstract class AbstractHttpBuilderTask extends DefaultTask {
                 restClient.put(
                     path: path,
                     body: body?.raw ? new String(body.raw, 'UTF-8') : body,
-                    requestContentType: PutFatManifest.FAT_MANIFEST_MEDIA_TYPE
+                    requestContentType: ImageManifest.FAT_MANIFEST_MEDIA_TYPE
                 )
             } catch (Exception e) {
                 logger.quiet "Put exception received: ${e}"

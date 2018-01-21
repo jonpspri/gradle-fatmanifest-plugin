@@ -25,15 +25,41 @@ import groovyx.net.http.*
 import org.gradle.api.*
 import org.gradle.api.tasks.*
 
+import com.xanophis.gradle.fatmanifest.manifest.ImageManifest
+import com.xanophis.gradle.fatmanifest.utils.RestCall
+
 /**
- * Create and PUT to the docker repository a multi-architecture manifest 
+ * Create and PUT to the docker repository a multi-architecture manifest
  * (a.k.a. a fat manifest) for the provided simple manifests.
  */
-class PutFatManifest extends AbstractHttpBuilderTask {
+class PutFatManifest extends DefaultTask implements RestCall {
+
+    class Manifest {
+        String os
+        String architecture
+        String mediaType
+        int size
+        String digest
+
+        Manifest(Object manifest) {
+            this.os = manifest.os
+            this.architecture = manifest.architecture
+            this.mediaType = manifest.mediaType
+            this.size = manifest.size
+            this.digest = manifest.digest
+        }
+    }
+
+    /*
+        Currently, each element can be either a Closure that returns a
+        Map that maps to Manifest, or a Map to Manifest.
+     */
+    @Input
+    def manifests = []
 
     /**
-     *  Target image name, including and prefixes, suffixes, etc.  Usally is in the
-     *  form {@code "${library}/${image}"}
+     *  Target image name, including and prefixes, suffixes, etc.  Usally is
+     *  in the form {@code "${library}/${image}"}
      */
     @Input
     String imageName
@@ -43,21 +69,9 @@ class PutFatManifest extends AbstractHttpBuilderTask {
      */
     @Input
     String tag
-    
-    /**
-     *   Collection of objects to be resolved by {@code Project.files(Object[])}.
-     *   The resulting collection of files is presumed to be a collection of
-     *   metadata files produced by {@link GetManifest} (or in the same 
-     *   [undocumented] format) which will be used to create the multi-architecture
-     *   manifest to be uploaded.
-     */
-    @InputFiles
-    def metadataFiles
-
-    public static final String FAT_MANIFEST_MEDIA_TYPE = 'application/vnd.docker.distribution.manifest.list.v2+json'
 
     @TaskAction
-    void putMultiArchManifest() {
+    void putFatManifest() {
 
         //  TODO - Eventually, there need to be provisions to move blobs and
         //         manifests to the target library.  For now, we're going to
@@ -74,16 +88,30 @@ class PutFatManifest extends AbstractHttpBuilderTask {
 
         def fatManifest = [
             schemaVersion: 2,
-            mediaType: FAT_MANIFEST_MEDIA_TYPE,
-            manifests: project.files(metadataFiles).getFiles().collect() { metadataFile -> 
-                def metadata = new JsonSlurper().parse(metadataFile)
+            mediaType: ImageManifest.FAT_MANIFEST_MEDIA_TYPE,
+            manifests: manifests.collect() {
+                Manifest manifest;
+                switch (it) {
+                    case Closure:
+                        manifest = new Manifest(it.call())
+                        break
+                    case Map:
+                        manifest = new Manifest(it)
+                        break
+                    case Manifest:
+                        manifest = it
+                        break
+                    default:
+                        throw new GradleException("Cannot extract manifest from Object of Class #{it.class}")
+                        break
+                }
                 [
-                    mediaType: metadata.mediaType,
-                    size: metadata.size,
-                    digest: metadata.digest,
+                    mediaType: manifest.mediaType,
+                    size: manifest.size,
+                    digest: manifest.digest,
                     platform: [
-                        architecture: metadata.architecture,
-                        os: metadata.os
+                        architecture: manifest.architecture,
+                        os: manifest.os
                     ]
                 ]
             }
@@ -92,6 +120,6 @@ class PutFatManifest extends AbstractHttpBuilderTask {
 
         def response = put("${imageName}/manifests/${tag}", fatManifest)
         logger.debug "HttpResponse from put received..."
-        response.getAllHeaders().each() { println it }
+        response.getAllHeaders().each { println it }
     }
 }

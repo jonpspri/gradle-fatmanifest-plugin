@@ -29,8 +29,10 @@ class ImageManifest {
     static final String GET_CONTENT_TYPE_V1_JWS = 'application/vnd.docker.distribution.manifest.v1+prettyjws'
     static final String GET_CONTENT_TYPE_V2_JSON = 'application/vnd.docker.distribution.manifest.v2+json'
 
-    static final String[] PUT_CONTENT_TYPES = [ PUT_CONTENT_TYPE_V1, PUT_CONTENT_TYPE_V2 ]
-    static final String[] GET_CONTENT_TYPES = [ GET_CONTENT_TYPE_V1_JWS, GET_CONTENT_TYPE_V2_JSON ]
+    static final String FAT_MANIFEST_MEDIA_TYPE = 'application/vnd.docker.distribution.manifest.list.v2+json'
+
+    static final String[] PUT_CONTENT_TYPES = [ this.PUT_CONTENT_TYPE_V1, this.PUT_CONTENT_TYPE_V2 ]
+    static final String[] GET_CONTENT_TYPES = [ this.GET_CONTENT_TYPE_V1_JWS, this.GET_CONTENT_TYPE_V2_JSON ]
 
     //  Extracted from Message Headers
     int size

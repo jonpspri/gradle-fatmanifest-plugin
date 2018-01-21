@@ -29,7 +29,7 @@ publishing {
                 def scm = root.appendNode('scm')
                 scm.appendNode('url', 'https://github.com/jonpspri/gradle-fatmanifest-plugin')
                 scm.appendNode('connection', 'scm:https://github.com/jonpspri/gradle-fatmanifest-plugin.git')
-                scm.appendNode('developerConnection', 'scm:git://github.com/jonpspri/gradle-docker-plugin.git')
+                scm.appendNode('developerConnection', 'scm:git://github.com/jonpspri/gradle-fatmanifest-plugin.git')
 
                 def license = root.appendNode('licenses').appendNode('license')
                 license.appendNode('name', 'The Apache Software License, Version 2.0')
@@ -75,11 +75,11 @@ bintray {
                 passphrase = resolveProperty('GPG_PASSPHRASE', 'gpgPassphrase')
             }
             mavenCentralSync {
-                sync = false 
+                sync = false
                 user = resolveProperty('MAVEN_CENTRAL_USER_TOKEN', 'mavenCentralUserToken')
                 password = resolveProperty('MAVEN_CENTRAL_PASSWORD', 'mavenCentralPassword')
-                close = '1' 
-            } 
+                close = '1'
+            }
         }
     }
 }

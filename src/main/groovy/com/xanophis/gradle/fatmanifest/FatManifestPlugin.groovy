@@ -19,10 +19,10 @@
 
 package com.xanophis.gradle.fatmanifest
 
-import com.xanophis.gradle.fatmanifest.tasks.AbstractHttpBuilderTask
-
 import org.gradle.api.*
 import org.gradle.api.artifacts.Configuration
+
+import com.xanophis.gradle.fatmanifest.utils.RestCall
 
 class FatManifestPlugin implements Plugin<Project> {
 
@@ -50,7 +50,5 @@ class FatManifestPlugin implements Plugin<Project> {
         }
 
         project.extensions.create('registry', FatManifestExtension)
-
-        project.tasks.withType(AbstractHttpBuilderTask) { it.classpath = config }
     }
 }
