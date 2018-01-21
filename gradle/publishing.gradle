@@ -53,7 +53,7 @@ bintray {
     publish = true
 
     pkg {
-        repo = 'gradle-plugins'
+        repo = 'gradle-fatmanifest-plugin'
         name = 'com.xanophis:gradle-fatmanifest-plugin'
         desc = 'Gradle plugin for managing multiarchitecture docker images.'
         websiteUrl = "https://github.com/jonpspri/${project.name}"
