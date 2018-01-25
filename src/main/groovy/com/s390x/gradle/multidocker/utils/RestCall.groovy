@@ -17,22 +17,28 @@
  *  under the License.
  */
 
-package com.xanophis.gradle.fatmanifest.utils
+package com.s390x.gradle.multidocker.utils
 
-import com.xanophis.gradle.fatmanifest.FatManifestPlugin
-import com.xanophis.gradle.fatmanifest.manifest.ImageManifest
+import com.s390x.gradle.multidocker.MultidockerPlugin
+import com.s390x.gradle.multidocker.model.ImageManifest
 
 import java.lang.reflect.Constructor
 import groovy.json.*
 
-import org.gradle.api.DefaultTask
+//import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 
+// TODO - This is a candidate to factor out of the specific gradle plugin
 trait RestCall {
 
+    Project project
+
     private def withRestClient(Closure closure) {
+
         FileCollection classpath =
-            project.configurations[FatManifestPlugin.FAT_MANIFEST_CONFIGURATION_NAME]
+            project.configurations[MultidockerPlugin.MULTIDOCKER_CONFIGURATION_NAME]
+
         ClassLoader originalClassLoader = getClass().classLoader
         ClassLoader newClassLoader = new URLClassLoader(
                 classpath.collect(){it.toURI().toURL()} as URL[],
@@ -43,8 +49,8 @@ trait RestCall {
             Thread.currentThread().contextClassLoader = newClassLoader
             Class restClientClass = newClassLoader.loadClass('groovyx.net.http.RESTClient')
             Constructor restClassConstructor = restClientClass.getConstructor(Object)
-            def restClient = restClassConstructor.newInstance(project.registry.url)
-            restClient.auth.basic(project.registry.username, project.registry.password)
+            def restClient = restClassConstructor.newInstance(this.url)
+            restClient.auth.basic(this.username, this.password)
 
             //  Configure parsers for potentially received content types
             Closure schemaParser = { new ImageManifest(it) }
@@ -59,7 +65,7 @@ trait RestCall {
             ImageManifest.PUT_CONTENT_TYPES.each() { contentType ->
                 restClient.encoder[contentType] = jsonEncoder
             }
-            restClient.encoder[ImageManifest.FAT_MANIFEST_MEDIA_TYPE] = jsonEncoder
+            restClient.encoder[ImageManifest.MANIFEST_LIST_MEDIA_TYPE] = jsonEncoder
 
             closure.call (restClient)
         } finally {
@@ -67,7 +73,7 @@ trait RestCall {
         }
     }
 
-    def get(String path) {
+    def restGet(def path) {
         return withRestClient() { restClient ->
             def result
             try {
@@ -78,14 +84,14 @@ trait RestCall {
                 ].join(', ')
                 result = restClient.get path: path
 
-                logger.debug "Result received from get: ${result} with data ${result.data}"
+                project.logger.debug "Result received from get: ${result} with data ${result.data}"
             } catch (Exception e) {
-                logger.quiet "Get exception received: ${e}"
+                project.logger.quiet "Get exception received: ${e}"
                 if (e.metaClass.hasProperty(e, 'response')) {
-                    logger.debug JsonOutput.prettyPrint(
+                    project.logger.debug JsonOutput.prettyPrint(
                         JsonOutput.toJson(e.response.data as Object))
                 } else {
-                    logger.quiet "Exception received without HttpResponseException semantics."
+                    project.logger.quiet "Exception received without HttpResponseException semantics."
                 }
                 throw e
             }
@@ -93,13 +99,13 @@ trait RestCall {
         }
     }
 
-    def put(String path, Object body) {
+    def restPut(def path, Object body) {
         return withRestClient() { restClient ->
             try {
                 restClient.put(
                     path: path,
                     body: body?.raw ? new String(body.raw, 'UTF-8') : body,
-                    requestContentType: ImageManifest.FAT_MANIFEST_MEDIA_TYPE
+                    requestContentType: ImageManifest.MANIFEST_LIST_MEDIA_TYPE
                 )
             } catch (Exception e) {
                 logger.quiet "Put exception received: ${e}"

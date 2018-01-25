@@ -11,7 +11,7 @@ buildscript {
 apply plugin: org.ajoberstar.gradle.git.publish.GitPublishPlugin
 
 gitPublish {
-    repoUri = 'https://github.com/jonpspri/gradle-fatmanifest-plugin.git'
+    repoUri = 'https://github.com/jonpspri/gradle-multidocker-plugin.git'
     branch = 'gh-pages'
 
     contents {

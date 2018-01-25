@@ -17,7 +17,7 @@
  *  under the License.
  */
 
-package com.xanophis.gradle.fatmanifest.manifest
+package com.s390x.gradle.multidocker.model
 
 import groovy.json.JsonSlurper
 
@@ -29,7 +29,7 @@ class ImageManifest {
     static final String GET_CONTENT_TYPE_V1_JWS = 'application/vnd.docker.distribution.manifest.v1+prettyjws'
     static final String GET_CONTENT_TYPE_V2_JSON = 'application/vnd.docker.distribution.manifest.v2+json'
 
-    static final String FAT_MANIFEST_MEDIA_TYPE = 'application/vnd.docker.distribution.manifest.list.v2+json'
+    static final String MANIFEST_LIST_MEDIA_TYPE = 'application/vnd.docker.distribution.manifest.list.v2+json'
 
     static final String[] PUT_CONTENT_TYPES = [ this.PUT_CONTENT_TYPE_V1, this.PUT_CONTENT_TYPE_V2 ]
     static final String[] GET_CONTENT_TYPES = [ this.GET_CONTENT_TYPE_V1_JWS, this.GET_CONTENT_TYPE_V2_JSON ]
@@ -43,14 +43,6 @@ class ImageManifest {
     private byte[] raw;
     private Map parsed;
 
-    //  Expected to be populated independently
-    //  TODO - Should this be a 'platform' class used elsewhere?
-    String architecture
-    String os
-
-    //  Pull this basic info from the parsed manifest
-    int schemaVersion
-
     ImageManifest(resp) {
         mediaType = resp.getHeaders().'Content-Type'
         size = resp.getHeaders().'Content-Length' as int
@@ -58,17 +50,5 @@ class ImageManifest {
 
         raw = resp.getEntity().getContent().getBytes()
         parsed = new JsonSlurper().parse(raw, 'UTF-8')
-
-        schemaVersion = parsed.schemaVersion as int
-        if (schemaVersion == 1) { architecture = parsed.architecture }
-    }
-
-    String toString() {
-        return "size: ${size}\n" \
-            + "digest: '${digest}'\n" \
-            + "mediaType: '${mediaType}'\n" \
-            + "architecture: '${architecture}'\n" \
-            + "os: '${os}'" \
-            + "schemaVersion: '${schemaVersion}'"
     }
 }

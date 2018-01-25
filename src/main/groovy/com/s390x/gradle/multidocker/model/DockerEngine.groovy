@@ -17,15 +17,11 @@
  *  under the License.
  */
 
-package com.xanophis.gradle.fatmanifest
+package com.s390x.gradle.multidocker.model
 
 // TODO:  This could support a lookup-by-name set of configurations for
 //        multiple registries.  But not today...
-class FatManifestExtension {
-    String name;
+class DockerEngine {
     String url;
-    String username;
-    String password;
-    
-    String manifestDirectory = '.'
+    File tlsDirectory;
 }

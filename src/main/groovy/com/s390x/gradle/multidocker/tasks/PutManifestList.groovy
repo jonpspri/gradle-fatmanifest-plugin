@@ -17,7 +17,7 @@
  *  under the License.
  */
 
-package com.xanophis.gradle.fatmanifest.tasks
+package com.s390x.gradle.multidocker.tasks
 
 import groovy.json.*
 import groovyx.net.http.*
@@ -25,14 +25,14 @@ import groovyx.net.http.*
 import org.gradle.api.*
 import org.gradle.api.tasks.*
 
-import com.xanophis.gradle.fatmanifest.manifest.ImageManifest
-import com.xanophis.gradle.fatmanifest.utils.RestCall
+import com.s390x.gradle.multidocker.model.ImageManifest
+import com.s390x.gradle.multidocker.utils.RestCall
 
 /**
  * Create and PUT to the docker repository a multi-architecture manifest
- * (a.k.a. a fat manifest) for the provided simple manifests.
+ * (a.k.a. a Manifest List) for the provided simple manifests.
  */
-class PutFatManifest extends DefaultTask implements RestCall {
+class PutManifestList extends DefaultTask implements RegistryRestCaller {
 
     class Manifest {
         String os
@@ -71,7 +71,7 @@ class PutFatManifest extends DefaultTask implements RestCall {
     String tag
 
     @TaskAction
-    void putFatManifest() {
+    void putMultidocker() {
 
         //  TODO - Eventually, there need to be provisions to move blobs and
         //         manifests to the target library.  For now, we're going to
@@ -86,9 +86,9 @@ class PutFatManifest extends DefaultTask implements RestCall {
         //     println ("...with the above headers")
         // }
 
-        def fatManifest = [
+        def manifestList = [
             schemaVersion: 2,
-            mediaType: ImageManifest.FAT_MANIFEST_MEDIA_TYPE,
+            mediaType: ImageManifest.MANIFEST_LIST_MEDIA_TYPE,
             manifests: manifests.collect() {
                 Manifest manifest;
                 switch (it) {
@@ -116,9 +116,9 @@ class PutFatManifest extends DefaultTask implements RestCall {
                 ]
             }
         ]
-        logger.debug JsonOutput.prettyPrint(JsonOutput.toJson(fatManifest))
+        logger.debug JsonOutput.prettyPrint(JsonOutput.toJson(manifestList))
 
-        def response = put("${imageName}/manifests/${tag}", fatManifest)
+        def response = registry.restPut("${imageName}/manifests/${tag}", manifestList)
         logger.debug "HttpResponse from put received..."
         response.getAllHeaders().each { println it }
     }

@@ -23,13 +23,13 @@ publishing {
                 def root = asNode()
                 root.appendNode('name', 'Gradle Fat Manifest plugin')
                 root.appendNode('description', 'Gradle plugin for managing multiarchitecture docker images')
-                root.appendNode('url', 'https://github.com/jonpspri/gradle-fatmanifest-plugin')
+                root.appendNode('url', 'https://github.com/jonpspri/gradle-multidocker-plugin')
                 root.appendNode('inceptionYear', '2017')
 
                 def scm = root.appendNode('scm')
-                scm.appendNode('url', 'https://github.com/jonpspri/gradle-fatmanifest-plugin')
-                scm.appendNode('connection', 'scm:https://github.com/jonpspri/gradle-fatmanifest-plugin.git')
-                scm.appendNode('developerConnection', 'scm:git://github.com/jonpspri/gradle-fatmanifest-plugin.git')
+                scm.appendNode('url', 'https://github.com/jonpspri/gradle-multidocker-plugin')
+                scm.appendNode('connection', 'scm:https://github.com/jonpspri/gradle-multidocker-plugin.git')
+                scm.appendNode('developerConnection', 'scm:git://github.com/jonpspri/gradle-multidocker-plugin.git')
 
                 def license = root.appendNode('licenses').appendNode('license')
                 license.appendNode('name', 'The Apache Software License, Version 2.0')
@@ -53,8 +53,8 @@ bintray {
     publish = true
 
     pkg {
-        repo = 'gradle-fatmanifest-plugin'
-        name = 'com.xanophis:gradle-fatmanifest-plugin'
+        repo = 'gradle-multidocker-plugin'
+        name = 'com.xanophis:gradle-multidocker-plugin'
         desc = 'Gradle plugin for managing multiarchitecture docker images.'
         websiteUrl = "https://github.com/jonpspri/${project.name}"
         issueTrackerUrl = "https://github.com/jonpspri/${project.name}/issues"
@@ -68,7 +68,7 @@ bintray {
         version {
             released  = new Date()
             vcsTag = "v$project.version"
-            attributes = ['gradle-plugin': ["com.xanophis.fatmanifest:${project.group}:${project.name}"]]
+            attributes = ['gradle-plugin': ["com.s390x:${project.group}:${project.name}"]]
 
             gpg {
                 sign = true

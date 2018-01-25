@@ -17,20 +17,24 @@
  *  under the License.
  */
 
-package com.xanophis.gradle.fatmanifest
+package com.s390x.gradle.multidocker
 
 import org.gradle.api.*
 import org.gradle.api.artifacts.Configuration
 
-import com.xanophis.gradle.fatmanifest.utils.RestCall
+import com.s390x.gradle.multidocker.utils.RestCall
 
-class FatManifestPlugin implements Plugin<Project> {
+import org.gradle.api.Project
 
-    static String FAT_MANIFEST_CONFIGURATION_NAME = 'fatManifest'
+class MultidockerPlugin implements Plugin<Project> {
+
+    static String MULTIDOCKER_CONFIGURATION_NAME = 'multidocker'
+
+    String targetRegistry
 
     @Override
     void apply(Project project) {
-        project.configurations.create(FAT_MANIFEST_CONFIGURATION_NAME)
+        project.configurations.create(MULTIDOCKER_CONFIGURATION_NAME)
                 .setVisible(false)
                 .setTransitive(true)
                 .setDescription('The libraries to be used for this project to access Docker Registry.')
@@ -44,11 +48,12 @@ class FatManifestPlugin implements Plugin<Project> {
         }
 
         //  TODO - can I just move this up to where I create this at the top of the constructor?
-        Configuration config = project.configurations[FAT_MANIFEST_CONFIGURATION_NAME]
+        Configuration config = project.configurations[MULTIDOCKER_CONFIGURATION_NAME]
         config.defaultDependencies { dependencies ->
             dependencies.add(project.dependencies.create('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2'))
         }
 
-        project.extensions.create('registry', FatManifestExtension)
+        project.extensions.create('multidocker', MultidockerExtension)
+        project.multidocker.project = project
     }
 }

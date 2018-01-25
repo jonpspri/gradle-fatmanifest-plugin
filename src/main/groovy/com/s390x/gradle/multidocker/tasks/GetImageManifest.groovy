@@ -17,7 +17,7 @@
  *  under the License.
  */
 
-package com.xanophis.gradle.fatmanifest.tasks
+package com.s390x.gradle.multidocker.tasks
 
 import groovy.json.*
 
@@ -26,13 +26,13 @@ import java.nio.file.Paths
 import org.gradle.api.*
 import org.gradle.api.tasks.*
 
-import com.xanophis.gradle.fatmanifest.utils.RestCall
+import com.s390x.gradle.multidocker.utils.RestCall
 
 /**
  * Retreive from the Docker registry a manifest and associated metadata
  * for a given Docker image.
  */
-class GetManifest extends AbstractReactiveStreamsTask implements RestCall {
+class GetImageManifest extends AbstractReactiveStreamsTask implements RegistryRestCaller {
 
     /**
      *  Source image name, including and prefixes, suffixes, etc.  Usally is in the
@@ -48,12 +48,10 @@ class GetManifest extends AbstractReactiveStreamsTask implements RestCall {
     String tag
 
     void runReactiveStream() {
-        def registryHost = new URI(project.registry.url).authority
-        def manifest = get("${imageName}/manifests/${tag}")
+        def manifest = registry.restGet("${imageName}/manifests/${tag}")
 
         // TODO - should there be some error detection here?  404, etc.
 
-        logger.info "request manifest ${imageName}/manifests/${tag} from ${registryHost}"
         logger.debug "Manifest received from get:"
         logger.debug "Class: ${manifest.class}"
         logger.debug "Contents: ${manifest}"

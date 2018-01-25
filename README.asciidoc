@@ -2,7 +2,7 @@
 
 Gradle plugin for working with the
 https://docs.docker.com/registry/spec/api/[Docker Registry],
-targetted specifically toward creating 
+targetted specifically toward creating
 https://docs.docker.com/registry/spec/manifest-v2-2/[multi-archtecture image manifests].
 
 // TODO - add some useful links; compile a TODO file.
@@ -20,13 +20,11 @@ To use this plugin, include it in your build script.
 ----
 buildscript {
     repositories {
-        maven {
-            url 'https://dl.bintray.com/jonpspri/gradle-plugins' 
-        }
+        jcenter()
     }
 
     dependencies {
-        classpath 'com.xanophis:gradle-fatmanifest-plugin:X.Y.Z'
+        classpath 'com.xanophis:gradle-multidocker-plugin:X.Y.Z'
     }
 }
 ----
@@ -34,13 +32,13 @@ buildscript {
 And then apply the plugin to projects where you want to use it.
 [source,groovy]
 ----
-apply plugin: 'com.xanophis.fatmanifest'
+apply plugin: 'com.s390x.gradle.multidocker'
 ----
 
 You may need to import task classes:
 [source,groovy]
 ----
-import com.xanophis.gradle.fatmanifest.tasks.*
+import com.s390x.gradle.multidocker.tasks.*
 ----
 
 == Configuring the registry
@@ -59,12 +57,12 @@ registry {
 
 The registry `name` and `url` will default to the docker registry if not
 provided, but the `username` and `password` are manditory.  Users are advised
-_not_ to hardcode username and password into the build file, but rather to 
+_not_ to hardcode username and password into the build file, but rather to
 source them from some file that is _not_ included in source code management.
 
 NOTE: Registry `name` is an FQDN, _e.g._ `registry.docker.io`.  The `url`,
 on the other hand, is used as the root of REST calls and so will usually be
-`"https:\\${name}\v2\"`.  Defaulting is _not_ yet build into the plugin. 
+`"https:\\${name}\v2\"`.  Defaulting is _not_ yet build into the plugin.
 
 == Quick Example
 
@@ -78,14 +76,14 @@ def getManifestTasks = archs.collect() { arch ->
     project.task(name: "getManifest-#{arch}", type: GetManifest) {
         os = 'linux'
         architecture = project.name
-        imageName = "${library}/${dockerImageName}" 
+        imageName = "${library}/${dockerImageName}"
         tag = "latest-${arch}"
     }
 }
 
-task putFatManifest(type: PutFatManifest, dependsOn: tasks) {
+task putMultidocker(type: PutMultidocker, dependsOn: tasks) {
     metadataFiles = getManifestTasks*.getMetadataFile()
-    imageName = "${library}/${dockerImageName}" 
-    tag = "latest"    
+    imageName = "${library}/${dockerImageName}"
+    tag = "latest"
 }
 ----

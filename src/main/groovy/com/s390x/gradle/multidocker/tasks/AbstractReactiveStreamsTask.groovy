@@ -18,7 +18,7 @@
     This has been shamelessly pilfered from gradle-docker-plugin
  */
 
-package com.xanophis.gradle.fatmanifest.tasks
+package com.s390x.gradle.multidocker.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
