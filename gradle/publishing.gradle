@@ -21,7 +21,7 @@ publishing {
 
             pom.withXml {
                 def root = asNode()
-                root.appendNode('name', 'Gradle Fat Manifest plugin')
+                root.appendNode('name', 'Gradle Multidocker plugin')
                 root.appendNode('description', 'Gradle plugin for managing multiarchitecture docker images')
                 root.appendNode('url', 'https://github.com/jonpspri/gradle-multidocker-plugin')
                 root.appendNode('inceptionYear', '2017')
@@ -53,7 +53,7 @@ bintray {
     publish = true
 
     pkg {
-        repo = 'gradle-multidocker-plugin'
+        repo = 'gradle-plugins'
         name = 'com.xanophis:gradle-multidocker-plugin'
         desc = 'Gradle plugin for managing multiarchitecture docker images.'
         websiteUrl = "https://github.com/jonpspri/${project.name}"
