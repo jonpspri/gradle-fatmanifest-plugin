@@ -22,14 +22,13 @@ apply from: "$rootDir/gradle/documentation.gradle"
 
 repositories {
     jcenter()
-    mavenCentral()
+    //mavenCentral()
 }
 
 dependencies {
     compile localGroovy()
     compile gradleApi()
     compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.2'
-    compile group: 'com.google.inject', name: 'guice', version: '4.1.0'
 }
 
 ext.compatibilityVersion = '1.6'
