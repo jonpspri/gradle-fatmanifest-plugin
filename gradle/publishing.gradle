@@ -54,7 +54,7 @@ bintray {
 
     pkg {
         repo = 'gradle-plugins'
-        name = "xanophis.com:${project.name}"
+        name = "com.xanophis:${project.name}"
         desc = 'Gradle plugin for managing multiarchitecture docker images.'
         websiteUrl = "https://github.com/jonpspri/${project.name}"
         issueTrackerUrl = "https://github.com/jonpspri/${project.name}/issues"
@@ -68,7 +68,7 @@ bintray {
         version {
             released  = new Date()
             vcsTag = "v$project.version"
-            attributes = ['gradle-plugin': ["xanophis.com:${project.name}"]]
+            attributes = ['gradle-plugin': ["com.xanophis:${project.name}"]]
 
             gpg {
                 sign = true
