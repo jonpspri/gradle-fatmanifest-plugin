@@ -23,6 +23,8 @@ repositories {
     //mavenCentral()
 }
 
+group = 'com.xanophis'
+
 dependencies {
     compile localGroovy()
     compile gradleApi()
