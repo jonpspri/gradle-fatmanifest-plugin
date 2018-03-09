@@ -54,7 +54,7 @@ bintray {
 
     pkg {
         repo = 'gradle-plugins'
-        name = 'com.xanophis:gradle-multidocker-plugin'
+        name = "${project.group}:${project.name}"
         desc = 'Gradle plugin for managing multiarchitecture docker images.'
         websiteUrl = "https://github.com/jonpspri/${project.name}"
         issueTrackerUrl = "https://github.com/jonpspri/${project.name}/issues"
@@ -68,7 +68,7 @@ bintray {
         version {
             released  = new Date()
             vcsTag = "v$project.version"
-            attributes = ['gradle-plugin': ["com.s390x:${project.group}:${project.name}"]]
+            attributes = ['gradle-plugin': ["${project.group}:${project.name}"]]
 
             gpg {
                 sign = true

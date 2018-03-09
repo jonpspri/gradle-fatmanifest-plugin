@@ -1,1 +1,2 @@
+rootProject.group = 'com.xanophis'
 rootProject.name = 'gradle-multidocker-plugin'

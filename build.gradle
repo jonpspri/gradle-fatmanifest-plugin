@@ -8,8 +8,6 @@ buildscript {
     }
 }
 
-group = 'com.xanophis'
-
 apply plugin: 'groovy'
 apply plugin: 'org.ajoberstar.release-opinion'
 //apply from: "$rootDir/gradle/test-setup.gradle"
@@ -37,7 +35,7 @@ targetCompatibility = compatibilityVersion
 
 jar {
     manifest {
-        attributes 'Implementation-Title': 'Gradle Fat Manifest plugin',
+        attributes 'Implementation-Title': 'Gradle Multidocker plugin',
                    'Implementation-Version': version,
                    'Built-By': System.getProperty('user.name'),
                    'Built-Date': new Date(),
